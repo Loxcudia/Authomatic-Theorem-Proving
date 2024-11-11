@@ -1,0 +1,93 @@
+eval string_attractor "?msd_neg_fib Ai,m((m>0) => (Ej ( ((j >= 1-m) & (j <= 1)) & (Ak ((0<=k) & (k<m) => (NF[i+k]=NF[j+k]))))))";
+
+eval string_attractor_NF "?msd_neg_fib Ai,m((m>0) => (Ej ( ((j >= 1-m+p) & (j <= p+1)) & (Ak ((0<=k) & (k<m) => (NF[i+k]=NF[j+k]))))))";
+
+macro che permette di verificare se una parola ha un attrattore:
+macro check_attractor "?%0 Ai,m((m>0) => Ej((j >= p-m) & (j <= p) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))";
+
+
+
+eval check_attractor_example "#check_attractor(msd_neg_fib, NF)"; <- per testarlo
+
+
+
+
+
+
+
+o che una certa sottostringa abbia un attrattore:
+macro check_substring_attractor "?%0 Am((m>0) => Ej((j >= start - m) & (j <= end) & Ak((0 <= k) & (k < m) => (%1[start+k] = %1[j+k]))))"; //sbagliata
+macro check_substring_attractor "?%0 Am((m>0) => Ej((j >= %2 - m) & (j <= %3) & Ak((0 <= k) & (k < m) => (%1[%2+k] = %1[j+k]))))"; //sbagliata
+macro check_substring_attractor "?%0 Ai,m((m>0) => Ej((j >= %2 - m) & (j <= %3) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))"; // sbagliata
+scrivere il predicato a partire da questo:
+Ai,m : start <= i < end, 0<=m<end-i : Ej : p-m < j <= p+l e j <= end - m e Ak <= m ?[i+k] = ?[j+k]
+
+
+eval check_substring_attractor_example "#check_substring_attractor(msd_neg_fib, NF, -2, 5)"; //per testare 
+
+
+  
+
+fare una versione che accetta come parametri due valori interi p,l e verifica se la parola ha un attrattore in quelle posizioni:
+
+
+
+
+macro check_attractor_at_p_l "?%0 Ai,m((m>0 & m<%3) => Ej((j >= %2 - m) & (j <= %2) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))"; //sbagliata ma potrebbe servire per i k-attrattori
+macro check_attractor_at_p_l "?%0 Ai,m((m>0) => Ej((j > %2 - m) & (j <= %2 + %3) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))"; //corretta
+
+
+eval check_attractor_at_p_l_example "#check_attractor_at_p_l(msd_neg_fib, NF, 0,1)"; <- dovrebbe restituire true
+eval check_attractor_at_p_l_example2 "#check_attractor_at_p_l(msd_neg_fib, NF, 5,6)"; <- dovrebbe restituire false
+
+
+poi fare una versione che accetta come parametri solo l e lascia p libera:
+
+macro check_attractor_only_l "?%0 Ai,m((m>0 & m<%2) => Ej((j > p - m) & (j <= p) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))"; //sbagliata ma serve per i k-attrattori
+macro check_attractor_only_l "?%0 Ai,m((m>0) => Ej((j > p - m) & (j <= p + %2) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))"; //corretta
+
+eval check_attractor_only_l_example "#check_attractor_only_l(msd_neg_fib, NF, 1)";
+eval check_attractor_only_l_example_2 "#check_attractor_only_l(msd_neg_fib, NF, 6)";
+
+poi fare una versione che non prende questi p ed l e li vincola tramite un quantificatore esistenziale da mettere all'inizio:
+
+macro check_attractor_without_pl "?%0 Ep,l(Ai,m((m>0 & m<l) => Ej((j > p - m) & (j <= p) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k])))))"; //sbagliata ma serve per i k-fattori
+macro check_attractor_without_pl "?%0 Ep,l(Ai,m((m>0) => Ej((j > p - m) & (j <= p + l) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k])))))";   //corretta
+eval check_attractor_without_pl_example "#check_attractor_without_pl(msd_neg_fib, NF)"; <- restituisce true
+
+
+prossimi task: scrivere le versioni per i k-attrattori e le versioni per controllare solo blocchi finiti di una parola infinita:
+
+1 macro check_k_attractor_at_p_l "?%0 Ai,m((m>0 & m<%4) => Ej((j > %2 - m) & (j <= %2 + %3) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))";
+eval check_k_attractor_at_pl_example "#check_k_attractor_at_p_l(msd_neg_fib, NF, 5, 16, 10)";
+
+2 macro check_k_attractor_only_l "?%0 Ai,m((m>0 & m<%3) => Ej((j > p - m) & (j <= p + %2) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))";
+eval check_k_attractor_only_l_example "#check_k_attractor_only_l(msd_neg_fib, NF, 3, 8)";
+
+3 macro check_k_attractor_without_pl "?%0 Ep,l(Ai,m((m>0 & m<%2) => Ej((j > p - m) & (j <= p+l) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k])))))";
+
+
+macro check_k_attractor_pl_libere "?%0 Ai,m((m>0 & m<%2) => Ej((j > p - m) & (j <= p+l) & Ak((0 <= k) & (k < m) => (%1[i+k] = %1[j+k]))))";
+eval pllibereprovathuemorse "#check_k_attractor_pl_libere(msd_neg_2, TM21, 4)";
+
+
+
+macro check_substring_attractor "?%0 Ep,l(Ai,m((i >= %2 & i < %3 & 0 <= m & m < %3 - i) => Ej((p - m < j) & (j <= p + l) & (j <= %3 - m) & Ak((0 <= k & k <= m) => (%1[i+k] = %1[j+k])))))";
+
+eval provasottostringa "#check_substring_attractor_free_pl(msd_neg_fib,NF,0,10)";
+eval provasottostringa "#check_substring_attractor(msd_neg_fib, NF, 0, 10)";
+
+def derivata1 "?msd_neg_fib Ei (NF[i+n]=@1) & Aj( 0<=j & j<=n)|( n<=j & j<0) => (NF[i+j]=NF[i-j-1])";
+def derivata2 " ?msd_neg_fib Ei ( NF[i+n]=@1 & NF[i]=@0) & Aj ((0<j & j<=n) | (n<=j & j<0)) => (NF[i+j]=NF[i-j])";
+
+i predicati applicati sulle parole morfiche non terminano, mentre sulla parola di thue morse danno vero. ho provato: check attractor, check k attractor e check substring attractor, nelle loro versioni con meno variabili libere.
+ 
+
+
+
+
+ 
+eval provathuemorsek6 "#check_k_attractor_only_l(msd_neg_2, TM21, 6, 4)";
+
+procedura in java che data una stringa, una posizione e uno span verifichi se in quella posizione esiste un duo attrattore
+
