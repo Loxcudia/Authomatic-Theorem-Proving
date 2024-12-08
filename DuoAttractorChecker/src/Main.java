@@ -4,11 +4,11 @@ import java.util.Set;
 public class Main {
     public static void main(String[] args) {
         String word = "abcabc";
-        int position = 1;
-        int span = 2;
-        boolean result = DuoAttractorChecker.hasDuoAttractor(word, position, span);
+        int position = 0;
+        int span = 1;
+        boolean result = DuoAttractorChecker.hasDuoAttractor2(word, position, span);
 
-
+/*
         Set<Integer> positions = new HashSet<>();
         positions  = DuoAttractorChecker.getDuoAttractorsPositions(word, span);
         for (Integer p:
@@ -16,7 +16,7 @@ public class Main {
             System.out.print(p);
             System.out.print(", ");
         }
-
+*/
         System.out.println("Esiste un duo-attrattore: " + result);
     }
 
