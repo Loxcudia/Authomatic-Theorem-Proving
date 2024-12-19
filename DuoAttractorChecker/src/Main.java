@@ -5,7 +5,7 @@ public class Main {
     public static void main(String[] args) {
         String word = "abcabc";
         int position = 0;
-        int span = 1;
+        int span = 5;
         boolean result = DuoAttractorChecker.hasDuoAttractor2(word, position, span);
 
 /*

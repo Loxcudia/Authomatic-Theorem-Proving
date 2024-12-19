@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DuoAttractorChecker {
     public static boolean hasDuoAttractor(String word, int position, int span) {
@@ -33,11 +30,11 @@ public class DuoAttractorChecker {
         for(int i = 0; i < length - 1; i++)
             alphabet.add(word.charAt(i));
         //La seguente mappa associa i simboli dell'alfabeto ad un insieme che contiene tutte le posizioni in cui i simboli occorrono nella stringa data inizialmente in input
-        Map<Character, Set<Integer>> characterToCrossPositionsMap = new HashMap<>();
+        Map<Character, List<Integer>> characterToCrossPositionsMap = new HashMap<>();
         //Riempio la mappa:
         for (Character symbol: alphabet)
         {
-            Set<Integer> crossPositions = new HashSet<>();
+            List<Integer> crossPositions = new LinkedList<>();
             for(int i = 0; i < length - 1; i++)
             {
                 if(word.charAt(i) == symbol)
@@ -48,32 +45,19 @@ public class DuoAttractorChecker {
 
         for (Character symbol: alphabet)
         {
-            Set<Integer> crossPositions = characterToCrossPositionsMap.get(symbol);
-            Set<Integer> tmpSet = new HashSet<>(); //set che andiamo a riempire con le posizioni appartenenti a crossPositions che sono incluse tra p e position + span
-            int cont1 = 0, cont2 = 0;
-            //La logica dei contatori mi aiuta ad escludere la prima posizione maggiore uguale di position incontrata e allo stesso tempo ad includere la posizione subito dopo quella finale 
+            List<Integer> crossPositions = characterToCrossPositionsMap.get(symbol);
+            List<Integer> tmpList = new LinkedList<>(); //lista che andiamo a riempire con le posizioni appartenenti a crossPositions che sono incluse tra p e position + span
             for(Integer n: crossPositions)
             {
                 if(n >= position && n <= position + span - 1)
-                {
-                    cont1++;
-                    if(n + 1 > position + span - 1)
-                        cont2++;
-                    if(cont1 > 1)
-                        tmpSet.add(n);
-                }
-                if(cont2 == 1)
-                {
-                    tmpSet.add(n);
-                    cont2--;
-                }
+                        tmpList.add(n + 1);
             }
 
             for (Integer n: crossPositions)
             {
                 if(n < position - 1 || n > position + span)
                 {
-                    if(checkIfIntersectIsEmpty(characterToCrossPositionsMap.get(word.charAt(n +1)), tmpSet))
+                    if(checkIfIntersectIsEmpty(characterToCrossPositionsMap.get(word.charAt(n + 1)), tmpList))
                         return false;
                 }
             }
@@ -81,7 +65,7 @@ public class DuoAttractorChecker {
         return true;
     }
 
-    private static boolean checkIfIntersectIsEmpty(Set<Integer> set1, Set<Integer> set2)
+    private static boolean checkIfIntersectIsEmpty(List<Integer> set1, List<Integer> set2)
     {
         /*
         for (Integer n: set1)
